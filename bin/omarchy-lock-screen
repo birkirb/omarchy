@@ -1,7 +1,28 @@
 #!/bin/bash
 
-# Lock the screen
-pidof hyprlock || hyprlock &
+# Lock the screen - handle existing instances intelligently
+if pidof hyprlock >/dev/null; then
+  # Try gentle termination first
+  pkill -TERM hyprlock
+  sleep 0.2
+
+  # If still running, check if it's responsive
+  if pidof hyprlock >/dev/null; then
+    if kill -0 $(pidof hyprlock) 2>/dev/null; then
+      # Process is responsive, likely already locked
+      notify-send "Screen Lock" "hyprlock is already running" --icon=dialog-information
+      exit 0
+    else
+      # Process exists but unresponsive, force kill
+      notify-send "Screen Lock" "hyprlock was zombied, and killed" --icon=dialog-information
+      pkill -9 hyprlock
+      sleep 0.1
+    fi
+  fi
+fi
+
+# Start hyprlock
+hyprlock --config ~/.config/hypr/hyprlock.conf &
 
 # Set keyboard layout to default (first layout)
 hyprctl switchxkblayout all 0 > /dev/null 2>&1
