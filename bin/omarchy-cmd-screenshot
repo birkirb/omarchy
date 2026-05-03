@@ -6,6 +6,12 @@
 
 [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
 OUTPUT_DIR="${OMARCHY_SCREENSHOT_DIR:-${XDG_PICTURES_DIR:-$HOME/Pictures}}"
+DATE_FORMAT="${OMARCHY_SCREENSHOT_DATE_FORMAT:-%Y-%m-%d_%H-%M-%S}"
+if [[ $OMARCHY_SCREENSHOT_PREFIX == false ]]; then
+  FILENAME="$(date +"$DATE_FORMAT")${OMARCHY_SCREENSHOT_SUFFIX:-.png}"
+else
+  FILENAME="${OMARCHY_SCREENSHOT_PREFIX:-screenshot_}$(date +"$DATE_FORMAT")${OMARCHY_SCREENSHOT_SUFFIX:-.png}"
+fi
 
 if [[ ! -d $OUTPUT_DIR ]]; then
   mkdir -p "$OUTPUT_DIR"
@@ -117,7 +123,6 @@ esac
 
 [[ -z $SELECTION ]] && exit 0
 
-FILENAME="screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
 FILEPATH="$OUTPUT_DIR/$FILENAME"
 
 if [[ $PROCESSING == "slurp" ]]; then
